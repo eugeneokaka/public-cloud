@@ -38,6 +38,15 @@ const ALLOWED_TYPES = new Map([
   ['md', 'text/markdown'],
 ]);
 
+const VIEWABLE_TYPES = new Set(['application/pdf', 'text/plain', 'text/markdown']);
+
+const OFFICE_TYPES = new Set([
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+]);
+
 const app = express();
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
@@ -239,6 +248,51 @@ app.get(
     );
 
     res.json(rows);
+  })
+);
+
+app.get(
+  '/api/notes/:id/view',
+  asyncHandler(async (req, res) => {
+    const id = int(req.params.id, 1, Number.MAX_SAFE_INTEGER);
+    if (!id) throw httpError(400, 'Invalid note id.');
+
+    const { rows } = await pool.query(
+      "SELECT s3_key, original_name, content_type FROM notes WHERE id = $1 AND status = 'uploaded'",
+      [id]
+    );
+    if (!rows.length) throw httpError(404, 'Note not found.');
+
+    const note = rows[0];
+
+    if (OFFICE_TYPES.has(note.content_type)) {
+      const fileUrl = await getSignedUrl(
+        s3,
+        new GetObjectCommand({ Bucket: BUCKET, Key: note.s3_key }),
+        { expiresIn: 900 }
+      );
+      const viewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(fileUrl)}`;
+      return res.redirect(302, viewerUrl);
+    }
+
+    if (!VIEWABLE_TYPES.has(note.content_type)) {
+      throw httpError(415, 'This file type can only be downloaded.');
+    }
+
+    const safeName = note.original_name.replace(/["\r\n]/g, '');
+    const url = await getSignedUrl(
+      s3,
+      new GetObjectCommand({
+        Bucket: BUCKET,
+        Key: note.s3_key,
+        ResponseContentDisposition: `inline; filename="${safeName}"`,
+        ResponseContentType:
+          note.content_type === 'text/markdown' ? 'text/plain; charset=utf-8' : note.content_type,
+      }),
+      { expiresIn: 300 }
+    );
+
+    res.redirect(302, url);
   })
 );
 

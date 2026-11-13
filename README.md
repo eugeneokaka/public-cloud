@@ -29,6 +29,7 @@ A row is inserted as `pending` before upload, then flipped to `uploaded` only af
 - Accepted files: PDF, DOC, DOCX, PPT, PPTX, TXT, MD, up to 25 MB.
 - Metadata: title, unit, year of study (1–6), semester (1–3). Displayed together as `1.1` (Year 1, Semester 1).
 - Browse notes with search by title/unit and filters for year and semester.
+- View PDF, TXT, Markdown and Office documents (Word/PowerPoint) in the browser, or download any file.
 - Upload flow limited to 10 presign requests per minute per IP.
 
 ## Project structure
@@ -71,6 +72,7 @@ S3 object keys look like `notes/{year}/semester-{semester}/{uuid}-{filename}`.
 | `POST` | `/api/notes/presign` | Validates metadata, inserts a `pending` row, returns `{ id, uploadUrl, contentType }`. URL expires in 15 minutes. |
 | `POST` | `/api/notes/:id/confirm` | Verifies the object exists in S3, marks the row `uploaded`, returns the note. `409` if the upload is missing. |
 | `GET` | `/api/notes` | Lists uploaded notes. Optional query params: `q`, `unit`, `semester`, `year`. Limit 200, newest first. |
+| `GET` | `/api/notes/:id/view` | `302` redirect to an inline presigned URL for PDF/TXT/Markdown, or to the Microsoft Office viewer for Word/PowerPoint files. |
 | `GET` | `/api/notes/:id/download` | `302` redirect to a presigned GET URL valid for 5 minutes. |
 
 Presign request body:
@@ -188,6 +190,7 @@ sudo systemctl restart semester-notes
 
 ## Known limitations
 
+- Office previews go through Microsoft's online viewer, which needs outbound access to the presigned file URL (15-minute link); it is a third-party service and has file-size limits.
 - No authentication: anyone who can reach the site can upload. Rate limiting is per IP and in-memory only.
 - No edit or delete UI, and no admin moderation.
 - Failed or abandoned uploads leave `pending` rows and orphaned objects; no cleanup job yet.

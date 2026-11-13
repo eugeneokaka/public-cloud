@@ -8,6 +8,16 @@ const filterQ = document.getElementById('filter-q');
 const filterSemester = document.getElementById('filter-semester');
 const filterYear = document.getElementById('filter-year');
 
+const VIEWABLE_TYPES = new Set([
+  'application/pdf',
+  'text/plain',
+  'text/markdown',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+]);
+
 let searchTimer = null;
 
 function setStatus(message, kind = '') {
@@ -143,7 +153,14 @@ function renderNotes(notes) {
           </p>
           <p class="filename">${escapeHtml(note.original_name)}</p>
         </div>
-        <a class="download" href="/api/notes/${note.id}/download">Download</a>
+        <div class="note-actions">
+          ${
+            VIEWABLE_TYPES.has(note.content_type)
+              ? `<a class="view" href="/api/notes/${note.id}/view" target="_blank" rel="noopener">View</a>`
+              : ''
+          }
+          <a class="download" href="/api/notes/${note.id}/download">Download</a>
+        </div>
       </article>`
     )
     .join('');
