@@ -106,14 +106,14 @@ app.post(
     const body = req.body || {};
     const title = text(body.title, 200);
     const unit = text(body.unit, 120);
-    const semester = int(body.semester, 1, 2);
+    const semester = int(body.semester, 1, 3);
     const year = int(body.year, 1, 6);
     const filename = text(body.filename, 255);
     const size = int(body.fileSize, 1, MAX_BYTES);
 
     if (!title) throw httpError(400, 'Title is required.');
     if (!unit) throw httpError(400, 'Unit is required.');
-    if (!semester) throw httpError(400, 'Semester must be 1 or 2.');
+    if (!semester) throw httpError(400, 'Semester must be 1, 2 or 3.');
     if (!year) throw httpError(400, 'Year of study must be between 1 and 6.');
     if (!filename) throw httpError(400, 'File name is required.');
     if (!size) throw httpError(400, `File size must be between 1 byte and ${MAX_BYTES / 1024 / 1024} MB.`);
@@ -203,7 +203,7 @@ app.get(
     const clauses = ["status = 'uploaded'"];
     const values = [];
 
-    const semester = req.query.semester ? int(req.query.semester, 1, 2) : null;
+    const semester = req.query.semester ? int(req.query.semester, 1, 3) : null;
     if (req.query.semester && !semester) throw httpError(400, 'Invalid semester filter.');
 
     const year = req.query.year ? int(req.query.year, 1, 6) : null;
