@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Semester Notes</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <h1>Semester Notes</h1>
+      <p class="tagline">Upload and share lecture notes by unit, semester and year.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <h2>Upload a note</h2>
+      <form id="upload-form" novalidate>
+        <div class="grid">
+          <label class="field span-2">
+            <span>Title</span>
+            <input type="text" name="title" maxlength="200" required placeholder="e.g. Introduction to Cloud Computing" />
+          </label>
+
+          <label class="field">
+            <span>Unit</span>
+            <input type="text" name="unit" maxlength="120" required placeholder="e.g. CSC 3102" />
+          </label>
+
+          <label class="field">
+            <span>Semester</span>
+            <select name="semester" required>
+              <option value="1">Semester 1</option>
+              <option value="2">Semester 2</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Year of study</span>
+            <select name="year" required>
+              <option value="1">Year 1</option>
+              <option value="2">Year 2</option>
+              <option value="3">Year 3</option>
+              <option value="4">Year 4</option>
+              <option value="5">Year 5</option>
+              <option value="6">Year 6</option>
+            </select>
+            <small class="hint">Saved as e.g. 1.1 = Year 1, Semester 1.</small>
+          </label>
+
+          <label class="field span-2">
+            <span>Document</span>
+            <input type="file" name="file" required
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.md" />
+            <small class="hint">PDF, Word, PowerPoint, TXT or Markdown. Max 25 MB.</small>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="submit-btn">Upload note</button>
+          <span id="status" class="status" role="status" aria-live="polite"></span>
+        </div>
+
+        <div id="progress-wrap" class="progress-wrap" hidden>
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="list-head">
+        <h2>Browse notes</h2>
+        <div class="filters">
+          <input type="search" id="filter-q" placeholder="Search title or unit" />
+          <select id="filter-semester">
+            <option value="">All semesters</option>
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+          </select>
+          <select id="filter-year">
+            <option value="">All years</option>
+            <option value="1">Year 1</option>
+            <option value="2">Year 2</option>
+            <option value="3">Year 3</option>
+            <option value="4">Year 4</option>
+            <option value="5">Year 5</option>
+            <option value="6">Year 6</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="notes" class="notes">
+        <p class="empty">Loading notes...</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
